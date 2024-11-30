@@ -1,0 +1,250 @@
+#instalando dependências
+npm install express body-parser ejs
+#criando servidor
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+
+// Configurações
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Página inicial com formulário de login
+app.get('/', (req, res) => {
+    res.render('login');
+});
+
+// Rota para processar o login
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    // Autenticação básica
+    if (username === 'admin' && password === '1234') {
+        res.send('Login bem-sucedido!');
+    } else {
+        res.send('Credenciais inválidas!');
+    }
+});
+
+// Iniciar servidor
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
+#criando tela de login
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="/login" method="POST">
+        <label for="username">Usuário:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Senha:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Entrar</button>
+    </form>
+</body>
+</html>
+#Execução no node.js
+node server.js
+
+# Página de cadastro
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+# Processar o cadastro
+app.post('/register', (req, res) => {
+    const { username, password } = req.body;
+
+    // Simulação de armazenamento (você pode integrar com um banco de dados aqui)
+    console.log(`Novo usuário: ${username}, Senha: ${password}`);
+    
+    res.send('Cadastro realizado com sucesso!');
+});
+
+#Tela de cadastro
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+</head>
+<body>
+    <h1>Cadastro de Usuário</h1>
+    <form action="/register" method="POST">
+        <label for="username">Usuário:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Senha:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Cadastrar</button>
+    </form>
+    <a href="/">Voltar para o Login</a>
+</body>
+</html>
+
+#gerenciador de usuários
+
+const users = []; 
+
+#atualizando rota de cadastro
+app.post('/register', (req, res) => {
+    const { username, password } = req.body;
+
+    // Verifica se o usuário já existe
+    const userExists = users.find(user => user.username === username);
+    if (userExists) {
+        return res.send('Usuário já cadastrado!');
+    }
+
+    // Adiciona o novo usuário
+    users.push({ username, password });
+    console.log(users); // Exibe os usuários cadastrados no terminal
+    
+    res.send('Cadastro realizado com sucesso!');
+});
+
+#Link de cadastro na tela de login
+<a href="/register">Ainda não tem uma conta? Cadastre-se aqui</a>
+
+#Página de login do administrador
+app.get('/admin', (req, res) => {
+    res.render('admin-login');
+});
+
+#Processar login do administrador
+app.post('/admin', (req, res) => {
+    const { username, password } = req.body;
+
+    // Credenciais fixas para admin (podemos usar um banco de dados no futuro)
+    const adminUsername = 'admin';
+    const adminPassword = 'admin123';
+
+    if (username === adminUsername && password === adminPassword) {
+        res.send('Login de administrador bem-sucedido! Bem-vindo ao painel de admin.');
+    } else {
+        res.send('Credenciais de administrador inválidas!');
+    }
+});
+#login administrador
+<a href="/admin">Login como Administrador</a>
+
+
+#começando data e hora de agendamento
+
+// Página de perfil do usuário
+app.get('/profile', (req, res) => {
+    res.render('profile');
+});
+
+// Processar a seleção de data e horário de atendimento
+app.post('/schedule', (req, res) => {
+    const { date, time } = req.body;
+
+    // Simulação de salvar o agendamento
+    console.log(`Atendimento agendado para ${date} às ${time}.`);
+    res.send(`Seu atendimento foi agendado para ${date} às ${time}.`);
+});
+
+
+
+#validando a data escolhida
+app.post('/schedule', (req, res) => {
+    const { date, time } = req.body;
+
+    // Validar a data escolhida
+    const selectedDate = new Date(date);
+    const dayOfWeek = selectedDate.getUTCDay(); // 0 = domingo, 1 = segunda, ..., 6 = sábado
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return res.send('Por favor, escolha uma data em um dia útil (segunda a sexta).');
+    }
+
+    // Validar o horário escolhido
+    const [hours, minutes] = time.split(':').map(Number);
+    if (hours < 8 || hours > 17 || (hours === 17 && minutes > 0)) {
+        return res.send('Por favor, escolha um horário entre 08:00 e 17:00.');
+    }
+
+    // Simulação de salvar o agendamento
+    console.log(`Atendimento agendado para ${date} às ${time}.`);
+    res.send(`Seu atendimento foi agendado com sucesso para ${date} às ${time}.`);
+});
+
+#atualizando para o usuário
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+</head>
+<body>
+    <h1>Bem-vindo ao seu perfil!</h1>
+    <h2>Agendar Atendimento</h2>
+    <form action="/schedule" method="POST">
+        <label for="date">Escolha a data (segunda a sexta):</label>
+        <input type="date" id="date" name="date" required>
+        <br>
+        <label for="time">Escolha o horário (08:00 - 17:00):</label>
+        <input type="time" id="time" name="time" min="08:00" max="17:00" required>
+        <br>
+        <button type="submit">Agendar</button>
+    </form>
+    <a href="/">Sair</a>
+</body>
+</html>
+
+#menu de atendimento
+// Página de menu de atendimento
+app.get('/services', (req, res) => {
+    const services = [
+        'Manutenção de impressoras',
+        'Manutenção de notebooks',
+        'Manutenção de desktops',
+        'Instalação e manutenção de redes',
+    ];
+    res.render('services', { services });
+});
+
+// Página específica para cada serviço
+app.get('/services/:service', (req, res) => {
+    const { service } = req.params;
+    res.render('service-details', { service });
+});
+#página de atendimento
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu de Atendimento</title>
+</head>
+<body>
+    <h1>Menu de Atendimento</h1>
+    <ul>
+        <% services.forEach(service => { %>
+            <li>
+                <a href="/services/<%= service.replace(/ /g, '-').toLowerCase() %>"><%= service %></a>
+            </li>
+        <% }) %>
+    </ul>
+    <a href="/profile">Voltar ao Perfil</a>
+</body>
+</html>
+
+
+
